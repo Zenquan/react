@@ -1,10 +1,15 @@
-class React {
-  static createElement (tag, attrs, ...children) {
-    return {
-      tag, 
-      attrs,
-      children
-    }
+import Component from './Component'
+
+const React = {
+  Component,
+  createElement
+}
+
+function createElement (tag, attrs, ...children) {
+  return {
+    tag, 
+    attrs,
+    children
   }
 }
 
