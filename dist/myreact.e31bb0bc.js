@@ -156,7 +156,7 @@ var React = /*#__PURE__*/function () {
 
 var _default = React;
 exports.default = _default;
-},{}],"react-dom/index.js":[function(require,module,exports) {
+},{}],"react/Component.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -166,28 +166,154 @@ exports.default = void 0;
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+var Component = function Component(props) {
+  _classCallCheck(this, Component);
 
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+  this.props = props;
+  this.state = {};
+};
 
-var ReactDOM = /*#__PURE__*/function () {
-  function ReactDOM() {
-    _classCallCheck(this, ReactDOM);
+var _default = Component;
+exports.default = _default;
+},{}],"react-dom/index.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _Component = _interopRequireDefault(require("../react/Component"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+var ReactDOM = {
+  render: render
+};
+
+function render(vnode, container) {
+  return container.append(_render(vnode));
+} // 返回要渲染
+
+
+function _render(vnode) {
+  console.log(vnode); // vnode为空、为undefined、为boolean
+
+  if (vnode === null || vnode === undefined || typeof vnode === 'boolean') return; // vnode为字符串
+
+  if (typeof vnode === 'string') {
+    var textNode = document.createTextNode(vnode);
+    return textNode;
+  } // 组件
+  // 创建组件
+  // 设置属性
+  // 渲染组件
+
+
+  if (typeof vnode.tag === 'function') {
+    var comp = createComponent(vnode.tag, vnode.attrs);
+    setComponentProps(comp, vnode.attrs);
+    return comp.base;
+  } // vnode为object
+  // 创建一个元素
+  // 遍历加上属性
+  // append到container上
+
+
+  if (_typeof(vnode) === 'object') {
+    var tag = vnode.tag,
+        attrs = vnode.attrs;
+    var dom = document.createElement(tag);
+
+    if (attrs) {
+      Object.keys(attrs).map(function (key) {
+        setAttribute(dom, key, attrs[key]);
+      });
+    }
+
+    vnode.children && vnode.children.forEach(function (child) {
+      return render(child, dom);
+    });
+    return dom;
+  }
+} // 创建组件
+
+
+function createComponent(comp, props) {
+  // 类组件直接创建返回
+  // 函数组件就要构造成类组件
+  var instance;
+
+  if (comp.prototype && comp.prototype.render) {
+    instance = new comp(props);
+  } else {
+    instance = new _Component.default(props);
+    instance.constructor = comp;
+
+    instance.render = function () {
+      return this.constructor(props);
+    };
   }
 
-  _createClass(ReactDOM, null, [{
-    key: "render",
-    value: function render(vnode, container) {
-      console.log(vnode);
-    }
-  }]);
+  return instance;
+} // 设置组件
 
-  return ReactDOM;
-}();
+
+function setComponentProps(comp, props) {
+  comp.attrs = props;
+  renderComponent(comp);
+} // 渲染组件
+
+
+function renderComponent(comp) {
+  var renderer = comp.render();
+  comp.base = _render(renderer);
+  return comp;
+} // 设置属性
+
+
+function setAttribute(dom, key, value) {
+  // className => class
+  if (key === 'className') {
+    key = 'class';
+  } else if (/on\w+/.test(key)) {
+    // onCLick => click
+    key = key.toLowerCase();
+    dom[key] = value || '';
+  } else if (key === 'style') {
+    // style
+    // style="color: 'red'"
+    // style={{color: 'red'}}
+    if (!value && typeof value === 'string') {
+      dom.style.cssText = value;
+    } else if (_typeof(value) === 'object') {
+      for (var _key in value) {
+        if (typeof value[_key] === 'number') {
+          dom.style[_key] = value[_key] + 'px';
+        } else {
+          dom.style[_key] = value[_key];
+        }
+      }
+    }
+  } else {
+    // 其他的dom[key] = value， 更新
+    if (key in dom) {
+      dom[key] = value || '';
+    }
+
+    if (value) {
+      dom.setAttribute(key, value);
+    } else {
+      dom.removeAttribute(key);
+    }
+  }
+}
 
 var _default = ReactDOM;
 exports.default = _default;
-},{}],"index.js":[function(require,module,exports) {
+},{"../react/Component":"react/Component.js"}],"index.js":[function(require,module,exports) {
 "use strict";
 
 var _react = _interopRequireDefault(require("./react"));
@@ -196,9 +322,26 @@ var _reactDom = _interopRequireDefault(require("./react-dom"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var ele = _react.default.createElement("div", null, "hello, ", _react.default.createElement("span", null, "react"));
+// const ele = (
+//   <div style={{color: 'red'}}>
+//     hello, <span>react</span>
+//   </div>
+// )
+// 函数组件
+function Home() {
+  return _react.default.createElement("div", {
+    className: "active",
+    title: "tan"
+  }, "hello,", _react.default.createElement("span", null, "react"), _react.default.createElement(Tan, null));
+}
 
-_reactDom.default.render(ele, document.querySelector('#root'));
+function Tan() {
+  return _react.default.createElement("h1", null, "\u6211\u662F\u5D4C\u5957\u51FD\u6570--");
+}
+
+_reactDom.default.render(_react.default.createElement(Home, {
+  name: "arr name"
+}), document.querySelector("#root"));
 },{"./react":"react/index.js","./react-dom":"react-dom/index.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
@@ -227,7 +370,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "1610" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "3542" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
