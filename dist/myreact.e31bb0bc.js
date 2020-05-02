@@ -346,11 +346,13 @@ var _Component = _interopRequireDefault(require("./Component"));
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var React = {
-  Component: _Component.default,
-  createElement: createElement
+  createElement: createElement,
+  Component: _Component.default
 };
 
 function createElement(tag, attrs) {
+  attrs = attrs || {};
+
   for (var _len = arguments.length, children = new Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
     children[_key - 2] = arguments[_key];
   }
@@ -358,7 +360,8 @@ function createElement(tag, attrs) {
   return {
     tag: tag,
     attrs: attrs,
-    children: children
+    children: children,
+    key: attrs.key || null
   };
 }
 
@@ -416,15 +419,53 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 //       </h1>
 //   )
 // }
-function Home() {
-  return _react.default.createElement("div", {
-    className: "active",
-    title: "tan"
-  }, "hello,", _react.default.createElement("span", null, "react"), _react.default.createElement(Tan, {
-    tan: "\u6211\u662F\u4F20\u8FDB\u6765\u7684\u53C2\u6570"
-  }));
-}
-
+// function Home(){
+//   return (
+//       <div className="active" title="tan">
+//           hello,<span>react</span>
+//           <Tan tan="我是传进来的参数" />
+//       </div>
+//   )
+// }
+// class Tan extends React.Component {
+//   constructor(props){
+//       super( props )
+//       this.state = {
+//           num: 0
+//       }
+//   }
+//   componentWillMount(){
+//       console.log( "组件将要加载--" )
+//   }
+//   componentWillReceiveProps( props ){
+//       console.log( "componentWillReceiveProps", props )
+//   }
+//   componentDidMount(){
+//       console.log( "组件加载完成--" )
+//   }
+//   componentWillUpdate(){
+//       console.log( "组件将要更新" )
+//   }
+//   componentDidUpdate(){
+//       console.log( "组件更新完成" )
+//   }
+//   handleClick(){
+//       // 修改状态的方法是调用 setState
+//       console.log( "数据改变了--" )
+//       this.setState({
+//           num: this.state.num + 1
+//       })
+//   }
+//   render(){
+//       return (
+//           <div>
+//               <h1>我是类组件-----{ this.state.num }</h1>
+//               <button onClick={ this.handleClick.bind( this ) } >点击</button>
+//           </div>
+//       )
+//   }
+// }
+// 函数组件
 var Tan = /*#__PURE__*/function (_React$Component) {
   _inherits(Tan, _React$Component);
 
@@ -437,7 +478,8 @@ var Tan = /*#__PURE__*/function (_React$Component) {
 
     _this = _super.call(this, props);
     _this.state = {
-      num: 0
+      num: 0,
+      list: [1, 2, 3, 4, 5]
     };
     return _this;
   }
@@ -456,6 +498,16 @@ var Tan = /*#__PURE__*/function (_React$Component) {
     key: "componentDidMount",
     value: function componentDidMount() {
       console.log("组件加载完成--");
+      console.log(this.state.list);
+
+      for (var i = 0; i < 10; i++) {
+        this.setState(function (preState, preProps) {
+          console.log("之前的状态：", preState);
+          return {
+            num: preState.num + 1
+          };
+        });
+      }
     }
   }, {
     key: "componentWillUpdate",
@@ -479,18 +531,21 @@ var Tan = /*#__PURE__*/function (_React$Component) {
   }, {
     key: "render",
     value: function render() {
-      return _react.default.createElement("div", null, _react.default.createElement("h1", null, "\u6211\u662F\u7C7B\u7EC4\u4EF6-----", this.state.num), _react.default.createElement("button", {
+      console.log("render---", this.state.list);
+      return _react.default.createElement("div", {
+        className: "active"
+      }, _react.default.createElement("h1", null, "\u6211\u662F\u7C7B\u7EC4\u4EF6-----", this.state.num), _react.default.createElement("button", {
         onClick: this.handleClick.bind(this)
-      }, "\u70B9\u51FB"));
+      }, "\u70B9\u51FB"), this.state.list.map(function (item) {
+        return _react.default.createElement("p", null, item);
+      }));
     }
   }]);
 
   return Tan;
 }(_react.default.Component);
 
-_reactDom.default.render(_react.default.createElement(Home, {
-  name: "arr name"
-}), document.querySelector("#root"));
+_reactDom.default.render(_react.default.createElement(Tan, null), document.querySelector("#root"));
 },{"./react":"react/index.js","./react-dom":"react-dom/index.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
